@@ -35,6 +35,7 @@ ALTER TABLE QUALITY_DATA_RAW CLUSTER BY (load_timestamp);
 -- Create Snowpipes for auto-ingestion
 CREATE OR REPLACE PIPE SENSOR_PIPE 
 AUTO_INGEST = TRUE
+COMMENT = 'Auto-ingestion pipe for sensor data'
 AS 
 COPY INTO SENSOR_DATA_RAW (raw_data, file_name)
 FROM (
@@ -43,11 +44,11 @@ FROM (
         METADATA$FILENAME
     FROM @MANUFACTURING_STAGE/sensor_data/
 )
-FILE_FORMAT = JSON_FORMAT
-COMMENT = 'Auto-ingestion pipe for sensor data';
+FILE_FORMAT = JSON_FORMAT;
 
 CREATE OR REPLACE PIPE PRODUCTION_PIPE 
 AUTO_INGEST = TRUE
+COMMENT = 'Auto-ingestion pipe for production data'
 AS 
 COPY INTO PRODUCTION_DATA_RAW (raw_data, file_name)
 FROM (
@@ -56,11 +57,11 @@ FROM (
         METADATA$FILENAME
     FROM @MANUFACTURING_STAGE/production_data/
 )
-FILE_FORMAT = JSON_FORMAT
-COMMENT = 'Auto-ingestion pipe for production data';
+FILE_FORMAT = JSON_FORMAT;
 
 CREATE OR REPLACE PIPE QUALITY_PIPE 
 AUTO_INGEST = TRUE
+COMMENT = 'Auto-ingestion pipe for quality data'
 AS 
 COPY INTO QUALITY_DATA_RAW (raw_data, file_name)
 FROM (
@@ -69,8 +70,7 @@ FROM (
         METADATA$FILENAME
     FROM @MANUFACTURING_STAGE/quality_data/
 )
-FILE_FORMAT = JSON_FORMAT
-COMMENT = 'Auto-ingestion pipe for quality data';
+FILE_FORMAT = JSON_FORMAT;
 
 -- Show pipe status
 SHOW PIPES;
