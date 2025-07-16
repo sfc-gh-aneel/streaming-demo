@@ -122,7 +122,10 @@ def get_dashboard_metrics(_session):
     ORDER BY snapshot_timestamp DESC
     LIMIT 1
     """
-    return _session.sql(query).to_pandas()
+    df = _session.sql(query).to_pandas()
+    # Convert Snowflake uppercase column names to lowercase
+    df.columns = df.columns.str.lower()
+    return df
 
 @st.cache_data(ttl=300)
 def get_equipment_list(_session):
@@ -142,7 +145,10 @@ def get_equipment_list(_session):
     WHERE snapshot_timestamp >= CURRENT_TIMESTAMP() - INTERVAL '1 hour'
     ORDER BY equipment_id
     """
-    return _session.sql(query).to_pandas()
+    df = _session.sql(query).to_pandas()
+    # Convert Snowflake uppercase column names to lowercase
+    df.columns = df.columns.str.lower()
+    return df
 
 @st.cache_data(ttl=300)
 def get_production_lines(_session):
@@ -158,7 +164,17 @@ def get_production_lines(_session):
     WHERE is_active = TRUE
     ORDER BY line_id
     """
-    return _session.sql(query).to_pandas()
+    df = _session.sql(query).to_pandas()
+    # Convert Snowflake uppercase column names to lowercase
+    df.columns = df.columns.str.lower()
+    return df
+
+# Helper function to execute query and normalize column names
+def execute_snowflake_query(_session, query):
+    """Execute query and convert column names to lowercase"""
+    df = _session.sql(query).to_pandas()
+    df.columns = df.columns.str.lower()
+    return df
 
 # Dashboard Components
 def render_dashboard():
