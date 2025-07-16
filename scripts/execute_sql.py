@@ -22,6 +22,32 @@ def setup_logging():
     )
     return logging.getLogger(__name__)
 
+def validate_account_identifier(account):
+    """Validate and provide suggestions for account identifier format"""
+    logger = logging.getLogger(__name__)
+    
+    if not account:
+        return False, "Account identifier is empty"
+    
+    # Common account identifier patterns
+    valid_patterns = [
+        "ACCOUNT.snowflakecomputing.com",
+        "ACCOUNT.REGION.snowflakecomputing.com", 
+        "ACCOUNT.REGION.CLOUD.snowflakecomputing.com",
+        "ORGNAME-ACCOUNTNAME"
+    ]
+    
+    # Check for common issues
+    if '.snowflakecomputing.com' in account:
+        logger.warning("Account identifier should not include '.snowflakecomputing.com' suffix")
+        account = account.replace('.snowflakecomputing.com', '')
+    
+    if 'https://' in account:
+        logger.warning("Account identifier should not include 'https://' prefix")
+        account = account.replace('https://', '')
+    
+    return True, account
+
 def execute_sql_file(connection, file_path):
     """Execute SQL commands from a file"""
     logger = logging.getLogger(__name__)
@@ -80,8 +106,21 @@ def main():
         sys.exit(1)
     
     try:
+        # Validate account identifier
+        is_valid, validated_account = validate_account_identifier(args.account)
+        if not is_valid:
+            logger.error(f"Invalid account identifier: {validated_account}")
+            sys.exit(1)
+        
+        if validated_account != args.account:
+            logger.info(f"Using cleaned account identifier: {validated_account}")
+            args.account = validated_account
+        
         # Connect to Snowflake
         logger.info("Connecting to Snowflake...")
+        logger.info(f"Account: {args.account}")
+        logger.info(f"User: {args.user}")
+        logger.info(f"Role: {args.role}")
         
         conn_params = {
             'account': args.account,
@@ -109,8 +148,30 @@ def main():
         
         print("✓ SQL execution completed successfully")
         
+    except snowflake.connector.errors.DatabaseError as e:
+        if "404 Not Found" in str(e):
+            logger.error("❌ Snowflake Connection Failed - 404 Not Found")
+            logger.error("This usually means:")
+            logger.error("  1. Account identifier is incorrect")
+            logger.error("  2. Account doesn't exist or is suspended")
+            logger.error("  3. Wrong region specified")
+            logger.error("")
+            logger.error("💡 Solutions:")
+            logger.error("  • Check your account identifier format:")
+            logger.error("    - Legacy: ACCOUNT (e.g., 'ab12345')")
+            logger.error("    - With region: ACCOUNT.REGION (e.g., 'ab12345.us-east-1')")
+            logger.error("    - With cloud: ACCOUNT.REGION.CLOUD (e.g., 'ab12345.us-east-1.aws')")
+            logger.error("    - Organization: ORGNAME-ACCOUNTNAME (e.g., 'myorg-myaccount')")
+            logger.error("  • Verify in Snowflake console: Admin > Accounts")
+            logger.error("  • Check if account is active and not suspended")
+        elif "Authentication" in str(e) or "Login" in str(e):
+            logger.error("❌ Authentication Failed")
+            logger.error("Please check your username and password")
+        else:
+            logger.error(f"❌ Database connection error: {str(e)}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"SQL execution failed: {str(e)}")
+        logger.error(f"❌ SQL execution failed: {str(e)}")
         sys.exit(1)
 
 if __name__ == '__main__':

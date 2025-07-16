@@ -180,23 +180,55 @@ sudo chown -R $(whoami) /usr/local/Homebrew
 
 ### Snowflake Connection Issues
 
-**Problem**: Connection timeout or authentication failures
+**Problem**: 404 Not Found error during connection
+```bash
+404 Not Found: post https://account.snowflakecomputing.com:443/session/v1/login-request
+```
+
+**Root Cause**: Account identifier is incorrect or malformed
 
 **Solutions**:
-1. Verify account identifier format:
+1. **Find your correct account identifier**:
+   - Login to Snowflake web console
+   - Look at the URL: `https://APP.snowflakecomputing.com`
+   - Use the `APP` part as your account identifier
+   
+2. **Common account identifier formats**:
    ```bash
-   # Correct formats:
-   ACCOUNT.snowflakecomputing.com
-   ACCOUNT.region.snowflakecomputing.com
-   ACCOUNT.region.cloud.snowflakecomputing.com
+   # Legacy format (most common)
+   ab12345
+   
+   # With region
+   ab12345.us-east-1
+   
+   # With cloud provider
+   ab12345.us-east-1.aws
+   
+   # Organization format (newer accounts)
+   myorg-myaccount
    ```
 
+3. **Verify account format**:
+   ```bash
+   # DO NOT include these in account identifier:
+   ❌ https://ab12345.snowflakecomputing.com
+   ❌ ab12345.snowflakecomputing.com
+   
+   # Correct format:
+   ✅ ab12345
+   ✅ ab12345.us-east-1
+   ✅ myorg-myaccount
+   ```
+
+**Problem**: Authentication failures
+
+**Solutions**:
+1. Verify account identifier format (see above)
 2. Check network connectivity:
    ```bash
-   # Test connection
-   curl -I https://ACCOUNT.snowflakecomputing.com
+   # Test connection (replace with your account)
+   curl -I https://ab12345.snowflakecomputing.com
    ```
-
 3. Verify user permissions:
    - User needs CREATE DATABASE privileges
    - Role should have SYSADMIN or similar permissions
