@@ -1,0 +1,27 @@
+spec:
+  containers:
+  - name: manufacturing-data-generator
+    image: /manufacturing_demo/public/manufacturing_data_generator:latest
+    env:
+      SNOWFLAKE_ACCOUNT: !PLACEHOLDER_ACCOUNT
+      SNOWFLAKE_USER: !PLACEHOLDER_USER
+      SNOWFLAKE_PASSWORD: !PLACEHOLDER_PASSWORD
+      GENERATE_INITIAL_DATA: "false"
+    volumeMounts:
+    - name: data-volume
+      mountPath: /app/data
+    resources:
+      requests:
+        memory: 1Gi
+        cpu: 0.5
+      limits:
+        memory: 2Gi
+        cpu: 1.0
+  volumes:
+  - name: data-volume
+    source: local
+    size: 10Gi
+  endpoints:
+  - name: health-check
+    port: 8080
+    public: false 

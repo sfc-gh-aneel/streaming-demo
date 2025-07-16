@@ -1,0 +1,287 @@
+# Manufacturing Data Generator Configuration
+
+# Snowflake Connection Settings
+snowflake:
+  account: ${SNOWFLAKE_ACCOUNT}
+  user: ${SNOWFLAKE_USER}
+  password: ${SNOWFLAKE_PASSWORD}
+  warehouse: STREAMING_WH
+  database: MANUFACTURING_DEMO
+  schema: RAW_DATA
+  stage: MANUFACTURING_STAGE
+
+# Data Generation Settings
+generation:
+  # Generate data every N seconds
+  interval_seconds: 10
+  # Number of records per batch
+  batch_size: 50
+  # Enable continuous generation
+  continuous: true
+  # Random seed for reproducible data
+  random_seed: 42
+
+# Manufacturing Configuration
+manufacturing:
+  # Production Lines
+  production_lines:
+    - line_id: "LINE_001"
+      line_name: "Assembly Line A"
+      facility_name: "Main Manufacturing Plant"
+      shift_pattern: "3_SHIFT"
+      target_capacity_per_hour: 150
+      product_type: "Automotive Components"
+      
+    - line_id: "LINE_002"
+      line_name: "Assembly Line B" 
+      facility_name: "Main Manufacturing Plant"
+      shift_pattern: "3_SHIFT"
+      target_capacity_per_hour: 120
+      product_type: "Electronic Components"
+      
+    - line_id: "LINE_003"
+      line_name: "Quality Control Line"
+      facility_name: "Main Manufacturing Plant"
+      shift_pattern: "2_SHIFT"
+      target_capacity_per_hour: 200
+      product_type: "Testing and Inspection"
+
+  # Equipment Configuration
+  equipment:
+    - equipment_id: "PRESS_001"
+      equipment_name: "Hydraulic Press #1"
+      equipment_type: "PRESS"
+      manufacturer: "ManufactureCorp"
+      model: "HP-2000"
+      production_line_id: "LINE_001"
+      location: "Station A1"
+      max_temperature: 85.0
+      max_pressure: 120.0
+      max_speed: 1200.0
+      
+    - equipment_id: "ROBOT_001"
+      equipment_name: "Assembly Robot #1"
+      equipment_type: "ROBOT"
+      manufacturer: "RoboTech"
+      model: "AR-500"
+      production_line_id: "LINE_001"
+      location: "Station A2"
+      max_temperature: 70.0
+      max_pressure: 80.0
+      max_speed: 2000.0
+      
+    - equipment_id: "CONVEYOR_001"
+      equipment_name: "Main Conveyor #1"
+      equipment_type: "CONVEYOR"
+      manufacturer: "ConveyorSys"
+      model: "CS-1000"
+      production_line_id: "LINE_001"
+      location: "Central"
+      max_temperature: 50.0
+      max_pressure: 30.0
+      max_speed: 500.0
+      
+    - equipment_id: "WELDER_001"
+      equipment_name: "Spot Welder #1"
+      equipment_type: "WELDER"
+      manufacturer: "WeldPro"
+      model: "SW-800"
+      production_line_id: "LINE_002"
+      location: "Station B1"
+      max_temperature: 95.0
+      max_pressure: 50.0
+      max_speed: 800.0
+      
+    - equipment_id: "DRILL_001"
+      equipment_name: "CNC Drill #1"
+      equipment_type: "DRILL"
+      manufacturer: "PrecisionTools"
+      model: "CNC-D500"
+      production_line_id: "LINE_002"
+      location: "Station B2"
+      max_temperature: 75.0
+      max_pressure: 100.0
+      max_speed: 3000.0
+      
+    - equipment_id: "SCANNER_001"
+      equipment_name: "Quality Scanner #1"
+      equipment_type: "SCANNER"
+      manufacturer: "QualityVision"
+      model: "QV-2000"
+      production_line_id: "LINE_003"
+      location: "QC Station 1"
+      max_temperature: 40.0
+      max_pressure: 10.0
+      max_speed: 100.0
+
+  # Product Configuration
+  products:
+    - product_id: "COMP_001"
+      product_name: "Engine Mount"
+      product_category: "Automotive"
+      unit_of_measure: "EACH"
+      standard_cost: 45.50
+      target_quality_score: 98.5
+      
+    - product_id: "COMP_002"
+      product_name: "Brake Caliper"
+      product_category: "Automotive"
+      unit_of_measure: "EACH"
+      standard_cost: 125.75
+      target_quality_score: 99.2
+      
+    - product_id: "ELEC_001"
+      product_name: "Circuit Board Assembly"
+      product_category: "Electronics"
+      unit_of_measure: "EACH"
+      standard_cost: 78.25
+      target_quality_score: 97.8
+      
+    - product_id: "ELEC_002"
+      product_name: "Power Supply Unit"
+      product_category: "Electronics"
+      unit_of_measure: "EACH"
+      standard_cost: 156.90
+      target_quality_score: 98.9
+
+# Sensor Data Generation Parameters
+sensor_data:
+  # Temperature simulation
+  temperature:
+    base_range: [20, 80]
+    variance: 5
+    spike_probability: 0.02
+    spike_magnitude: 15
+    
+  # Pressure simulation  
+  pressure:
+    base_range: [10, 100]
+    variance: 8
+    spike_probability: 0.015
+    spike_magnitude: 20
+    
+  # Vibration simulation
+  vibration:
+    base_range: [0.1, 0.8]
+    variance: 0.1
+    spike_probability: 0.01
+    spike_magnitude: 0.3
+    
+  # Speed simulation
+  speed_rpm:
+    base_range: [100, 2500]
+    variance: 200
+    spike_probability: 0.005
+    spike_magnitude: 500
+    
+  # Power consumption
+  power_consumption:
+    base_range: [10, 150]
+    variance: 15
+    efficiency_correlation: 0.7
+    
+  # Efficiency simulation
+  efficiency:
+    base_range: [70, 95]
+    variance: 5
+    degradation_rate: 0.001
+
+# Production Event Parameters
+production_events:
+  # Cycle time simulation
+  cycle_time:
+    base_seconds: 45
+    variance: 10
+    equipment_factors:
+      PRESS: 1.2
+      ROBOT: 0.8
+      WELDER: 1.1
+      DRILL: 0.9
+      
+  # Downtime simulation
+  downtime:
+    probability_per_hour: 0.05
+    planned_maintenance_ratio: 0.3
+    average_duration_minutes: 15
+    max_duration_minutes: 120
+    
+  # Production volume
+  production_volume:
+    units_per_cycle: [1, 3]
+    reject_probability: 0.02
+    quality_correlation: 0.6
+
+# Quality Control Parameters
+quality_control:
+  # Test types and specifications
+  tests:
+    - test_type: "DIMENSIONAL_CHECK"
+      specification_range: [99.0, 101.0]
+      measurement_precision: 0.1
+      failure_probability: 0.03
+      
+    - test_type: "SURFACE_FINISH"
+      specification_range: [85.0, 100.0]
+      measurement_precision: 0.5
+      failure_probability: 0.02
+      
+    - test_type: "MATERIAL_STRENGTH"
+      specification_range: [500.0, 600.0]
+      measurement_precision: 2.0
+      failure_probability: 0.01
+      
+    - test_type: "ELECTRICAL_TEST"
+      specification_range: [110.0, 130.0]
+      measurement_precision: 0.2
+      failure_probability: 0.025
+
+  # Defect types
+  defect_types:
+    - "DIMENSIONAL_OUT_OF_SPEC"
+    - "SURFACE_SCRATCHES" 
+    - "MATERIAL_DEFECT"
+    - "ASSEMBLY_ERROR"
+    - "WELD_DEFECT"
+    - "ELECTRICAL_FAILURE"
+    - "CONTAMINATION"
+
+# Operators and Staff
+operators:
+  - operator_id: "OP001"
+    name: "John Smith"
+    shift: "DAY_SHIFT"
+    experience_level: "SENIOR"
+    
+  - operator_id: "OP002"
+    name: "Maria Garcia"
+    shift: "DAY_SHIFT"
+    experience_level: "INTERMEDIATE"
+    
+  - operator_id: "OP003"
+    name: "David Chen"
+    shift: "AFTERNOON_SHIFT"
+    experience_level: "SENIOR"
+    
+  - operator_id: "OP004"
+    name: "Sarah Johnson"
+    shift: "AFTERNOON_SHIFT"
+    experience_level: "INTERMEDIATE"
+    
+  - operator_id: "OP005"
+    name: "Mike Wilson"
+    shift: "NIGHT_SHIFT"
+    experience_level: "SENIOR"
+
+# Quality Inspectors
+inspectors:
+  - inspector_id: "QI001"
+    name: "Lisa Brown"
+    certification: "LEVEL_3"
+    
+  - inspector_id: "QI002"
+    name: "Robert Taylor"
+    certification: "LEVEL_2"
+    
+  - inspector_id: "QI003"
+    name: "Jennifer Davis"
+    certification: "LEVEL_3" 
