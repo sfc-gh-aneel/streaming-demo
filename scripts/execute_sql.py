@@ -56,8 +56,34 @@ def execute_sql_file(connection, file_path):
         with open(file_path, 'r') as file:
             sql_content = file.read()
         
-        # Split by semicolons and execute each statement
-        statements = [stmt.strip() for stmt in sql_content.split(';') if stmt.strip()]
+        # Smart SQL statement splitting that handles stored procedures with $$ delimiters
+        statements = []
+        current_statement = ""
+        in_procedure = False
+        lines = sql_content.split('\n')
+        
+        for line in lines:
+            current_statement += line + '\n'
+            
+            # Check if we're entering a stored procedure/function
+            if '$$' in line and not in_procedure:
+                in_procedure = True
+            # Check if we're exiting a stored procedure/function
+            elif '$$;' in line and in_procedure:
+                in_procedure = False
+                statements.append(current_statement.strip())
+                current_statement = ""
+            # Regular statement ending (not in procedure)
+            elif line.strip().endswith(';') and not in_procedure:
+                statements.append(current_statement.strip())
+                current_statement = ""
+        
+        # Add any remaining statement
+        if current_statement.strip():
+            statements.append(current_statement.strip())
+        
+        # Filter out empty statements and comments-only statements
+        statements = [stmt for stmt in statements if stmt.strip() and not stmt.strip().startswith('--')]
         
         cursor = connection.cursor()
         
