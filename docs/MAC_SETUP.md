@@ -113,12 +113,28 @@ sudo dscl . -append /Groups/docker GroupMembership $(whoami)
 
 ### Python Issues
 
-**Problem**: Python packages fail to install
+**Problem**: Python packages fail to install (PEP 668 error)
+```bash
+error: externally-managed-environment
+× This environment is externally managed
+```
+
+**Solution**: The setup script now handles this automatically by:
+1. **First trying** `--user` flag installation
+2. **Fallback** to creating a virtual environment at `./venv/`
+3. **Auto-activation** of the virtual environment for the demo
+
+**Manual activation** (if needed):
+```bash
+source venv/bin/activate  # From project root
+```
+
+**Problem**: Legacy Python package installation errors
 ```bash
 ERROR: Could not install packages due to an EnvironmentError
 ```
 
-**Solutions**:
+**Manual Solutions**:
 1. Use virtual environment:
    ```bash
    python3 -m venv venv

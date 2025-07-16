@@ -93,10 +93,13 @@ For detailed architectural views, see the comprehensive diagrams in [`docs/diagr
 - 🍎 **Apple Silicon & Intel support** with automatic detection
 - 🐳 **Docker Desktop** auto-start and configuration
 - ☕ **Java 11** with proper `JAVA_HOME` setup
-- 🐍 **Python 3.11** with required packages
+- 🐍 **Python 3.11** with required packages (PEP 668 compliant)
 - 🔧 **Maven** build tool installation
+- 📦 **Virtual environment** auto-creation if needed
 
 📖 **[Complete Mac Setup Guide](./docs/MAC_SETUP.md)** with troubleshooting
+
+> **Note**: The script automatically handles modern Python environment restrictions by using `--user` installation or creating a virtual environment at `./venv/`
 
 ### Generic Setup
 

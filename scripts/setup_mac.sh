@@ -116,7 +116,34 @@ install_prerequisites() {
     # Install Python packages
     print_message $YELLOW "🐍 Installing Python packages..."
     python3 -m pip install --upgrade pip
-    python3 -m pip install snowflake-connector-python pandas
+    
+    # Try installing packages with --user flag first (PEP 668 compliance)
+    if ! python3 -m pip install --user snowflake-connector-python pandas 2>/dev/null; then
+        print_message $YELLOW "📦 User installation failed, trying with virtual environment..."
+        
+        # Create a virtual environment for the project
+        if [[ ! -d "$PROJECT_ROOT/venv" ]]; then
+            python3 -m venv "$PROJECT_ROOT/venv"
+        fi
+        
+        # Activate virtual environment and install packages
+        source "$PROJECT_ROOT/venv/bin/activate"
+        python3 -m pip install --upgrade pip
+        python3 -m pip install snowflake-connector-python pandas
+        
+        # Add activation to zshrc for convenience
+        if ! grep -q "source.*venv/bin/activate" ~/.zshrc 2>/dev/null; then
+            echo "" >> ~/.zshrc
+            echo "# Manufacturing Demo Virtual Environment" >> ~/.zshrc
+            echo "# Uncomment the next line to auto-activate the virtual environment" >> ~/.zshrc
+            echo "# source \"$PROJECT_ROOT/venv/bin/activate\"" >> ~/.zshrc
+        fi
+        
+        print_message $GREEN "✅ Virtual environment created at $PROJECT_ROOT/venv"
+        print_message $YELLOW "💡 To activate manually: source $PROJECT_ROOT/venv/bin/activate"
+    else
+        print_message $GREEN "✅ Python packages installed to user directory"
+    fi
     
     # Start Docker Desktop if not running
     if ! docker info &> /dev/null; then
@@ -170,6 +197,21 @@ verify_installation() {
         print_message $GREEN "✅ Docker is running"
     else
         print_message $RED "❌ Docker is not running"
+        all_good=false
+    fi
+    
+    # Check Python packages
+    print_message $YELLOW "🔍 Checking Python packages..."
+    
+    # Activate virtual environment if it exists for package checking
+    if [[ -d "$PROJECT_ROOT/venv" ]]; then
+        source "$PROJECT_ROOT/venv/bin/activate"
+    fi
+    
+    if python3 -c "import snowflake.connector; import pandas" 2>/dev/null; then
+        print_message $GREEN "✅ Python packages: snowflake-connector-python, pandas"
+    else
+        print_message $RED "❌ Required Python packages not found"
         all_good=false
     fi
     
@@ -294,6 +336,13 @@ main() {
     
     # Run the main setup script
     print_section "Running Main Setup Script"
+    
+    # Activate virtual environment if it exists
+    if [[ -d "$PROJECT_ROOT/venv" ]]; then
+        print_message $YELLOW "🔌 Activating virtual environment..."
+        source "$PROJECT_ROOT/venv/bin/activate"
+    fi
+    
     "$SCRIPT_DIR/setup_demo.sh" \
         --account "$SNOWFLAKE_ACCOUNT" \
         --user "$SNOWFLAKE_USER" \
