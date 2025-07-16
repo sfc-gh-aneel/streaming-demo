@@ -113,17 +113,23 @@ install_prerequisites() {
         echo "export PATH=\"\$JAVA_HOME/bin:\$PATH\"" >> ~/.zshrc
     fi
     
-    # Install Python packages
+    # Install Python packages (PEP 668 compliant)
     print_message $YELLOW "🐍 Installing Python packages..."
-    python3 -m pip install --upgrade pip
     
-    # Try installing packages with --user flag first (PEP 668 compliance)
-    if ! python3 -m pip install --user snowflake-connector-python pandas 2>/dev/null; then
-        print_message $YELLOW "📦 User installation failed, trying with virtual environment..."
+    # First, try to upgrade pip with --user flag
+    print_message $YELLOW "📦 Attempting user-level package installation..."
+    if python3 -m pip install --user --upgrade pip &>/dev/null && \
+       python3 -m pip install --user snowflake-connector-python pandas &>/dev/null; then
+        print_message $GREEN "✅ Python packages installed to user directory"
+    else
+        print_message $YELLOW "📦 User installation failed, creating virtual environment..."
         
         # Create a virtual environment for the project
         if [[ ! -d "$PROJECT_ROOT/venv" ]]; then
             python3 -m venv "$PROJECT_ROOT/venv"
+            print_message $GREEN "✅ Virtual environment created"
+        else
+            print_message $YELLOW "📁 Using existing virtual environment"
         fi
         
         # Activate virtual environment and install packages
@@ -131,18 +137,16 @@ install_prerequisites() {
         python3 -m pip install --upgrade pip
         python3 -m pip install snowflake-connector-python pandas
         
-        # Add activation to zshrc for convenience
-        if ! grep -q "source.*venv/bin/activate" ~/.zshrc 2>/dev/null; then
+        # Add activation hint to zshrc for convenience
+        if ! grep -q "source.*streaming-demo.*venv" ~/.zshrc 2>/dev/null; then
             echo "" >> ~/.zshrc
             echo "# Manufacturing Demo Virtual Environment" >> ~/.zshrc
             echo "# Uncomment the next line to auto-activate the virtual environment" >> ~/.zshrc
             echo "# source \"$PROJECT_ROOT/venv/bin/activate\"" >> ~/.zshrc
         fi
         
-        print_message $GREEN "✅ Virtual environment created at $PROJECT_ROOT/venv"
-        print_message $YELLOW "💡 To activate manually: source $PROJECT_ROOT/venv/bin/activate"
-    else
-        print_message $GREEN "✅ Python packages installed to user directory"
+        print_message $GREEN "✅ Virtual environment configured at $PROJECT_ROOT/venv"
+        print_message $YELLOW "💡 To activate manually: source venv/bin/activate"
     fi
     
     # Start Docker Desktop if not running
@@ -203,14 +207,24 @@ verify_installation() {
     # Check Python packages
     print_message $YELLOW "🔍 Checking Python packages..."
     
-    # Activate virtual environment if it exists for package checking
+    # Test packages in both potential environments
+    local packages_found=false
+    
+    # First check if virtual environment exists and packages are there
     if [[ -d "$PROJECT_ROOT/venv" ]]; then
-        source "$PROJECT_ROOT/venv/bin/activate"
+        if source "$PROJECT_ROOT/venv/bin/activate" && python3 -c "import snowflake.connector; import pandas" 2>/dev/null; then
+            print_message $GREEN "✅ Python packages: snowflake-connector-python, pandas (virtual env)"
+            packages_found=true
+        fi
     fi
     
-    if python3 -c "import snowflake.connector; import pandas" 2>/dev/null; then
-        print_message $GREEN "✅ Python packages: snowflake-connector-python, pandas"
-    else
+    # If not found in venv, check user installation
+    if [[ "$packages_found" != "true" ]] && python3 -c "import snowflake.connector; import pandas" 2>/dev/null; then
+        print_message $GREEN "✅ Python packages: snowflake-connector-python, pandas (user)"
+        packages_found=true
+    fi
+    
+    if [[ "$packages_found" != "true" ]]; then
         print_message $RED "❌ Required Python packages not found"
         all_good=false
     fi
