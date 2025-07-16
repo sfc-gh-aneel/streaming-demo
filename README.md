@@ -18,6 +18,11 @@ A comprehensive end-to-end demonstration of real-time data streaming in Snowflak
 └─────────────────┘    └──────────────────┘    └─────────────────┘
 ```
 
+### 📊 Visual Documentation
+For detailed architectural views, see the comprehensive diagrams in [`docs/diagrams/`](./docs/diagrams/):
+- **[Physical Data Model](./docs/diagrams/physical-data-model.mmd)**: Complete database schema with tables, columns, and relationships
+- **[Data Flow Architecture](./docs/diagrams/data-flow-architecture.mmd)**: End-to-end pipeline from generation to consumption
+
 ### Architecture Components
 
 1. **Data Generation Layer**

@@ -1,0 +1,294 @@
+erDiagram
+    %% =====================================================
+    %% MANUFACTURING STREAMING DEMO - PHYSICAL DATA MODEL
+    %% =====================================================
+    %% This diagram shows the complete table structure across all three layers:
+    %% 1. Raw Data Layer - JSON ingestion tables with Snowpipe auto-ingestion
+    %% 2. Star Schema Layer - Dimensional model for analytics
+    %% 3. Aggregation Layer - Pre-calculated KPIs and dashboard metrics
+    %% =====================================================
+    
+    %% =====================================================
+    %% RAW DATA LAYER - JSON Ingestion Tables
+    %% =====================================================
+    
+    SENSOR_DATA_RAW {
+        VARIANT raw_data
+        STRING file_name
+        TIMESTAMP_NTZ load_timestamp
+    }
+    
+    PRODUCTION_DATA_RAW {
+        VARIANT raw_data
+        STRING file_name
+        TIMESTAMP_NTZ load_timestamp
+    }
+    
+    QUALITY_DATA_RAW {
+        VARIANT raw_data
+        STRING file_name
+        TIMESTAMP_NTZ load_timestamp
+    }
+    
+    %% =====================================================
+    %% STAR SCHEMA LAYER - Dimensional Model
+    %% =====================================================
+    
+    %% Dimension Tables
+    DIM_EQUIPMENT {
+        NUMBER equipment_key PK
+        STRING equipment_id
+        STRING equipment_name
+        STRING equipment_type
+        STRING manufacturer
+        STRING model
+        DATE installation_date
+        STRING production_line_id
+        STRING location
+        FLOAT max_temperature
+        FLOAT max_pressure
+        FLOAT max_speed
+        STRING maintenance_schedule
+        BOOLEAN is_active
+        TIMESTAMP_NTZ created_at
+        TIMESTAMP_NTZ updated_at
+    }
+    
+    DIM_PRODUCTION_LINE {
+        NUMBER line_key PK
+        STRING line_id
+        STRING line_name
+        STRING facility_name
+        STRING shift_pattern
+        NUMBER target_capacity_per_hour
+        STRING product_type
+        BOOLEAN is_active
+        TIMESTAMP_NTZ created_at
+        TIMESTAMP_NTZ updated_at
+    }
+    
+    DIM_TIME {
+        NUMBER time_key PK
+        DATE full_date
+        NUMBER year_number
+        NUMBER quarter_number
+        NUMBER month_number
+        STRING month_name
+        NUMBER week_number
+        NUMBER day_of_year
+        NUMBER day_of_month
+        NUMBER day_of_week
+        STRING day_name
+        NUMBER hour_number
+        NUMBER minute_number
+        BOOLEAN is_weekend
+        BOOLEAN is_holiday
+        STRING shift_name
+    }
+    
+    DIM_PRODUCT {
+        NUMBER product_key PK
+        STRING product_id
+        STRING product_name
+        STRING product_category
+        STRING unit_of_measure
+        FLOAT standard_cost
+        FLOAT target_quality_score
+        BOOLEAN is_active
+        TIMESTAMP_NTZ created_at
+    }
+    
+    %% Fact Tables
+    FACT_SENSOR_READINGS {
+        NUMBER sensor_reading_key PK
+        NUMBER equipment_key FK
+        NUMBER time_key FK
+        TIMESTAMP_NTZ timestamp_utc
+        STRING sensor_type
+        FLOAT temperature
+        FLOAT pressure
+        FLOAT vibration
+        FLOAT speed_rpm
+        FLOAT power_consumption
+        FLOAT efficiency_percent
+        STRING status
+        STRING alert_level
+        TIMESTAMP_NTZ created_at
+    }
+    
+    FACT_PRODUCTION {
+        NUMBER production_key PK
+        NUMBER equipment_key FK
+        NUMBER line_key FK
+        NUMBER product_key FK
+        NUMBER time_key FK
+        TIMESTAMP_NTZ timestamp_utc
+        STRING event_type
+        NUMBER units_produced
+        NUMBER planned_units
+        FLOAT cycle_time_seconds
+        FLOAT downtime_minutes
+        NUMBER reject_count
+        STRING operator_id
+        STRING batch_id
+        TIMESTAMP_NTZ created_at
+    }
+    
+    FACT_QUALITY {
+        NUMBER quality_key PK
+        NUMBER equipment_key FK
+        NUMBER product_key FK
+        NUMBER time_key FK
+        TIMESTAMP_NTZ timestamp_utc
+        STRING test_type
+        FLOAT measurement_value
+        FLOAT specification_min
+        FLOAT specification_max
+        BOOLEAN is_within_spec
+        STRING defect_type
+        STRING inspector_id
+        STRING batch_id
+        NUMBER sample_size
+        TIMESTAMP_NTZ created_at
+    }
+    
+    %% =====================================================
+    %% AGGREGATION LAYER - KPI and Analytics Tables
+    %% =====================================================
+    
+    AGG_EQUIPMENT_PERFORMANCE {
+        STRING equipment_id PK
+        TIMESTAMP_NTZ time_window_start PK
+        STRING aggregation_level PK
+        STRING equipment_name
+        TIMESTAMP_NTZ time_window_end
+        FLOAT avg_temperature
+        FLOAT max_temperature
+        FLOAT min_temperature
+        FLOAT temp_variance
+        NUMBER temp_alerts_count
+        FLOAT avg_pressure
+        FLOAT max_pressure
+        FLOAT min_pressure
+        FLOAT pressure_variance
+        NUMBER pressure_alerts_count
+        FLOAT avg_efficiency_percent
+        FLOAT uptime_minutes
+        FLOAT downtime_minutes
+        FLOAT availability_percent
+        FLOAT avg_power_consumption
+        STRING vibration_trend
+        FLOAT maintenance_risk_score
+        FLOAT predicted_failure_probability
+        TIMESTAMP_NTZ last_updated
+    }
+    
+    AGG_PRODUCTION_METRICS {
+        STRING line_id PK
+        TIMESTAMP_NTZ time_window_start PK
+        STRING aggregation_level PK
+        STRING line_name
+        TIMESTAMP_NTZ time_window_end
+        STRING shift_name
+        NUMBER total_units_produced
+        NUMBER total_planned_units
+        FLOAT production_efficiency_percent
+        FLOAT avg_cycle_time_seconds
+        FLOAT min_cycle_time_seconds
+        FLOAT max_cycle_time_seconds
+        FLOAT total_production_time_minutes
+        NUMBER total_reject_count
+        FLOAT reject_rate_percent
+        FLOAT first_pass_yield_percent
+        FLOAT total_downtime_minutes
+        FLOAT planned_downtime_minutes
+        FLOAT unplanned_downtime_minutes
+        NUMBER downtime_events_count
+        FLOAT units_per_hour
+        FLOAT throughput_vs_target_percent
+        TIMESTAMP_NTZ last_updated
+    }
+    
+    AGG_QUALITY_SUMMARY {
+        STRING product_id PK
+        TIMESTAMP_NTZ time_window_start PK
+        STRING aggregation_level PK
+        STRING product_name
+        STRING line_id
+        TIMESTAMP_NTZ time_window_end
+        NUMBER total_tests_conducted
+        NUMBER tests_passed
+        NUMBER tests_failed
+        FLOAT pass_rate_percent
+        NUMBER critical_defects_count
+        NUMBER major_defects_count
+        NUMBER minor_defects_count
+        NUMBER total_defects_count
+        FLOAT defect_rate_per_thousand
+        TIMESTAMP_NTZ last_updated
+    }
+    
+    AGG_PREDICTIVE_MAINTENANCE {
+        STRING equipment_id PK
+        TIMESTAMP_NTZ current_timestamp PK
+        STRING equipment_name
+        STRING equipment_type
+        FLOAT overall_health_score
+        STRING health_trend
+        FLOAT motor_health_score
+        FLOAT bearing_health_score
+        FLOAT belt_health_score
+        FLOAT sensor_health_score
+        NUMBER predicted_failure_days
+        FLOAT failure_probability_30_days
+        FLOAT failure_probability_60_days
+        FLOAT failure_probability_90_days
+        STRING recommended_action
+        STRING maintenance_priority
+        FLOAT estimated_maintenance_cost
+        FLOAT estimated_downtime_hours
+        NUMBER days_since_last_maintenance
+        DATE next_scheduled_maintenance_date
+        NUMBER maintenance_overdue_days
+        BOOLEAN temperature_alert
+        BOOLEAN vibration_alert
+        BOOLEAN pressure_alert
+        BOOLEAN efficiency_alert
+        TIMESTAMP_NTZ last_updated
+    }
+    
+    AGG_REALTIME_DASHBOARD {
+        TIMESTAMP_NTZ snapshot_timestamp PK
+        NUMBER total_active_equipment
+        NUMBER equipment_online_count
+        NUMBER equipment_offline_count
+        NUMBER equipment_alert_count
+        FLOAT current_production_rate_per_hour
+        NUMBER today_units_produced
+        NUMBER today_production_target
+        FLOAT today_efficiency_percent
+        NUMBER today_tests_conducted
+        FLOAT today_pass_rate_percent
+        FLOAT today_defect_rate
+        NUMBER critical_alerts_count
+        NUMBER high_priority_alerts_count
+        NUMBER medium_priority_alerts_count
+        TIMESTAMP_NTZ last_updated
+    }
+    
+    %% =====================================================
+    %% RELATIONSHIPS - Star Schema
+    %% =====================================================
+    
+    %% Fact to Dimension Relationships
+    DIM_EQUIPMENT ||--o{ FACT_SENSOR_READINGS : "equipment_key"
+    DIM_TIME ||--o{ FACT_SENSOR_READINGS : "time_key"
+    
+    DIM_EQUIPMENT ||--o{ FACT_PRODUCTION : "equipment_key"
+    DIM_PRODUCTION_LINE ||--o{ FACT_PRODUCTION : "line_key"
+    DIM_PRODUCT ||--o{ FACT_PRODUCTION : "product_key"
+    DIM_TIME ||--o{ FACT_PRODUCTION : "time_key"
+    
+    DIM_EQUIPMENT ||--o{ FACT_QUALITY : "equipment_key"
+    DIM_PRODUCT ||--o{ FACT_QUALITY : "product_key"
+    DIM_TIME ||--o{ FACT_QUALITY : "time_key" 

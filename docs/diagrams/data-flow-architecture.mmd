@@ -1,0 +1,170 @@
+flowchart TD
+    %% =====================================================
+    %% MANUFACTURING STREAMING DEMO - DATA FLOW ARCHITECTURE
+    %% =====================================================
+    %% This diagram shows the complete data pipeline from synthetic data generation
+    %% through real-time stream processing to aggregated KPIs and dashboard metrics.
+    %% Processing includes Snowpipe auto-ingestion, Stream change data capture,
+    %% and scheduled aggregation tasks for manufacturing analytics.
+    %% =====================================================
+    
+    %% =====================================================
+    %% DATA GENERATION & INGESTION
+    %% =====================================================
+    
+    subgraph "Data Generation Layer"
+        DG[Python Data Generator<br/>Container]
+        SG[Sensor Data Generator<br/>Temperature, Pressure, Vibration]
+        PG[Production Data Generator<br/>Units, Cycle Times, Downtime]
+        QG[Quality Data Generator<br/>Test Results, Defects]
+        
+        DG --> SG
+        DG --> PG
+        DG --> QG
+    end
+    
+    subgraph "File Stage"
+        FS[Internal Stage<br/>@MANUFACTURING_STAGE]
+        SF[sensor_data/ folder]
+        PF[production_data/ folder]
+        QF[quality_data/ folder]
+        
+        FS --> SF
+        FS --> PF
+        FS --> QF
+    end
+    
+    %% =====================================================
+    %% RAW DATA LAYER
+    %% =====================================================
+    
+    subgraph "Raw Data Schema (JSON Tables)"
+        direction TB
+        SDR[(SENSOR_DATA_RAW<br/>VARIANT raw_data<br/>STRING file_name<br/>TIMESTAMP load_timestamp)]
+        PDR[(PRODUCTION_DATA_RAW<br/>VARIANT raw_data<br/>STRING file_name<br/>TIMESTAMP load_timestamp)]
+        QDR[(QUALITY_DATA_RAW<br/>VARIANT raw_data<br/>STRING file_name<br/>TIMESTAMP load_timestamp)]
+    end
+    
+    subgraph "Auto-Ingestion Pipes"
+        SP[SENSOR_PIPE<br/>Auto-Ingest: TRUE]
+        PP[PRODUCTION_PIPE<br/>Auto-Ingest: TRUE]
+        QP[QUALITY_PIPE<br/>Auto-Ingest: TRUE]
+    end
+    
+    %% =====================================================
+    %% STREAM PROCESSING
+    %% =====================================================
+    
+    subgraph "Stream Processing Layer"
+        direction TB
+        SS[SENSOR_STREAM<br/>Change Data Capture]
+        PS[PRODUCTION_STREAM<br/>Change Data Capture]
+        QS[QUALITY_STREAM<br/>Change Data Capture]
+        
+        TP[TRANSFORM_PROCEDURES<br/>JSON Parsing & Validation<br/>Data Type Conversion<br/>Business Rule Application]
+        
+        SS --> TP
+        PS --> TP
+        QS --> TP
+    end
+    
+    %% =====================================================
+    %% STAR SCHEMA LAYER
+    %% =====================================================
+    
+    subgraph "Analytics Schema (Star Schema)"
+        direction TB
+        
+        subgraph "Dimension Tables"
+            DE[(DIM_EQUIPMENT<br/>equipment_key PK<br/>equipment_id, name, type<br/>manufacturer, model<br/>location, specifications)]
+            DPL[(DIM_PRODUCTION_LINE<br/>line_key PK<br/>line_id, name<br/>facility, shift_pattern<br/>target_capacity)]
+            DT[(DIM_TIME<br/>time_key PK<br/>full_date, year, quarter<br/>month, week, day<br/>hour, minute, shift)]
+            DP[(DIM_PRODUCT<br/>product_key PK<br/>product_id, name<br/>category, unit_measure<br/>standard_cost)]
+        end
+        
+        subgraph "Fact Tables"
+            FSR[(FACT_SENSOR_READINGS<br/>sensor_reading_key PK<br/>equipment_key FK<br/>time_key FK<br/>temperature, pressure<br/>vibration, speed_rpm<br/>power_consumption)]
+            FP[(FACT_PRODUCTION<br/>production_key PK<br/>equipment_key FK<br/>line_key FK<br/>product_key FK<br/>time_key FK<br/>units_produced, cycle_time<br/>downtime_minutes)]
+            FQ[(FACT_QUALITY<br/>quality_key PK<br/>equipment_key FK<br/>product_key FK<br/>time_key FK<br/>measurement_value<br/>specification_limits<br/>is_within_spec)]
+        end
+    end
+    
+    %% =====================================================
+    %% AGGREGATION LAYER
+    %% =====================================================
+    
+    subgraph "Aggregation Schema (KPI Tables)"
+        direction TB
+        
+        AEP[(AGG_EQUIPMENT_PERFORMANCE<br/>equipment_id PK<br/>time_window_start PK<br/>aggregation_level PK<br/>Temperature Metrics<br/>Pressure Metrics<br/>Performance Metrics<br/>Predictive Indicators)]
+        
+        APM[(AGG_PRODUCTION_METRICS<br/>line_id PK<br/>time_window_start PK<br/>aggregation_level PK<br/>Production Volumes<br/>Timing Metrics<br/>Quality Metrics<br/>Downtime Analysis)]
+        
+        AQS[(AGG_QUALITY_SUMMARY<br/>product_id PK<br/>time_window_start PK<br/>aggregation_level PK<br/>Quality Test Metrics<br/>Defect Analysis<br/>Statistical Metrics)]
+        
+        APMain[(AGG_PREDICTIVE_MAINTENANCE<br/>equipment_id PK<br/>current_timestamp PK<br/>Health Indicators<br/>Component Health Scores<br/>Failure Predictions<br/>Maintenance Recommendations)]
+        
+        ARD[(AGG_REALTIME_DASHBOARD<br/>snapshot_timestamp PK<br/>Overall Facility Metrics<br/>Production Summary<br/>Quality Summary<br/>Alert Counts)]
+    end
+    
+    %% =====================================================
+    %% AUTOMATED TASKS
+    %% =====================================================
+    
+    subgraph "Scheduled Tasks"
+        direction TB
+        AT1[EQUIPMENT_PERFORMANCE_TASK<br/>Every 1 minute]
+        AT2[PRODUCTION_METRICS_TASK<br/>Every 5 minutes]
+        AT3[QUALITY_SUMMARY_TASK<br/>Every 10 minutes]
+        AT4[PREDICTIVE_MAINTENANCE_TASK<br/>Every 15 minutes]
+        AT5[DASHBOARD_REFRESH_TASK<br/>Every 30 seconds]
+    end
+    
+    %% =====================================================
+    %% DATA FLOW CONNECTIONS
+    %% =====================================================
+    
+    %% Generation to Stage
+    SG --> SF
+    PG --> PF
+    QG --> QF
+    
+    %% Stage to Raw via Pipes
+    SF --> SP --> SDR
+    PF --> PP --> PDR
+    QF --> QP --> QDR
+    
+    %% Raw to Streams
+    SDR --> SS
+    PDR --> PS
+    QDR --> QS
+    
+    %% Streams to Star Schema
+    TP --> FSR
+    TP --> FP
+    TP --> FQ
+    TP --> DE
+    TP --> DPL
+    TP --> DT
+    TP --> DP
+    
+    %% Star Schema to Aggregations via Tasks
+    FSR --> AT1 --> AEP
+    FP --> AT2 --> APM
+    FQ --> AT3 --> AQS
+    FSR --> AT4 --> APMain
+    FP --> AT5 --> ARD
+    FQ --> AT5
+    
+    %% Styling
+    classDef generatorClass fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef rawClass fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef starClass fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef aggClass fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef taskClass fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    
+    class DG,SG,PG,QG generatorClass
+    class SDR,PDR,QDR,SP,PP,QP rawClass
+    class DE,DPL,DT,DP,FSR,FP,FQ starClass
+    class AEP,APM,AQS,APMain,ARD aggClass
+    class AT1,AT2,AT3,AT4,AT5 taskClass 
