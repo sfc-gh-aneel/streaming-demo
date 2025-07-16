@@ -2,6 +2,20 @@
 
 A comprehensive end-to-end demonstration of real-time data streaming in Snowflake using Snowpark Container Services, showcasing a manufacturing industry use case with synthetic sensor data, production metrics, and quality control data.
 
+## ⚡ Quick Start
+
+### Mac Users (Easiest)
+```bash
+./scripts/setup_mac.sh -a YOUR_ACCOUNT -u YOUR_USER -p YOUR_PASSWORD
+```
+**Everything installed automatically!** 🍎
+
+### All Other Platforms
+```bash
+./scripts/setup_demo.sh -a YOUR_ACCOUNT -u YOUR_USER -p YOUR_PASSWORD
+```
+**Prerequisites required first** 📋
+
 ## 🏗️ Architecture Overview
 
 
@@ -66,7 +80,25 @@ For detailed architectural views, see the comprehensive diagrams in [`docs/diagr
 - Python 3.8+
 - Snowflake account with appropriate privileges
 
-### Setup
+### 🍎 Mac Setup (Recommended)
+
+**One-command setup** - automatically installs all prerequisites:
+
+```bash
+./scripts/setup_mac.sh -a YOUR_ACCOUNT -u YOUR_USER -p YOUR_PASSWORD
+```
+
+✨ **Features:**
+- 🏠 **Homebrew auto-installation** for package management
+- 🍎 **Apple Silicon & Intel support** with automatic detection
+- 🐳 **Docker Desktop** auto-start and configuration
+- ☕ **Java 11** with proper `JAVA_HOME` setup
+- 🐍 **Python 3.11** with required packages
+- 🔧 **Maven** build tool installation
+
+📖 **[Complete Mac Setup Guide](./docs/MAC_SETUP.md)** with troubleshooting
+
+### Generic Setup
 
 1. **Clone the repository**
    ```bash
