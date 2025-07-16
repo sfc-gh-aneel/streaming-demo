@@ -147,7 +147,7 @@ CREATE OR REPLACE TABLE AGG_PREDICTIVE_MAINTENANCE (
     equipment_id STRING,
     equipment_name STRING,
     equipment_type STRING,
-    current_timestamp TIMESTAMP_NTZ,
+    snapshot_timestamp TIMESTAMP_NTZ,
     
     -- Health indicators
     overall_health_score FLOAT, -- 0-100 scale
@@ -184,7 +184,7 @@ CREATE OR REPLACE TABLE AGG_PREDICTIVE_MAINTENANCE (
     
     last_updated TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
     
-    CONSTRAINT PK_AGG_MAINTENANCE PRIMARY KEY (equipment_id, current_timestamp)
+    CONSTRAINT PK_AGG_MAINTENANCE PRIMARY KEY (equipment_id, snapshot_timestamp)
 ) COMMENT = 'Predictive maintenance indicators and alerts';
 
 -- =====================================================
@@ -226,7 +226,7 @@ CREATE OR REPLACE TABLE AGG_REALTIME_DASHBOARD (
 ALTER TABLE AGG_EQUIPMENT_PERFORMANCE CLUSTER BY (time_window_start, equipment_id);
 ALTER TABLE AGG_PRODUCTION_METRICS CLUSTER BY (time_window_start, line_id);
 ALTER TABLE AGG_QUALITY_SUMMARY CLUSTER BY (time_window_start, product_id);
-ALTER TABLE AGG_PREDICTIVE_MAINTENANCE CLUSTER BY (current_timestamp, equipment_id);
+ALTER TABLE AGG_PREDICTIVE_MAINTENANCE CLUSTER BY (snapshot_timestamp, equipment_id);
 ALTER TABLE AGG_REALTIME_DASHBOARD CLUSTER BY (snapshot_timestamp);
 
 -- Grant permissions
