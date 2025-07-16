@@ -126,7 +126,7 @@ BEGIN
     WHERE s.METADATA$ACTION = 'INSERT'
     AND s.raw_data:equipment_id IS NOT NULL;
     
-    RETURN 'Sensor data transformation completed. Rows processed: ' || $$ROWCOUNT;
+    RETURN 'Sensor data transformation completed. Rows processed: ' || SQLROWCOUNT;
 END;
 $$;
 
@@ -173,7 +173,7 @@ BEGIN
     WHERE prod.METADATA$ACTION = 'INSERT'
     AND prod.raw_data:equipment_id IS NOT NULL;
     
-    RETURN 'Production data transformation completed. Rows processed: ' || $$ROWCOUNT;
+    RETURN 'Production data transformation completed. Rows processed: ' || SQLROWCOUNT;
 END;
 $$;
 
@@ -221,7 +221,7 @@ BEGIN
     WHERE q.METADATA$ACTION = 'INSERT'
     AND q.raw_data:product_id IS NOT NULL;
     
-    RETURN 'Quality data transformation completed. Rows processed: ' || $$ROWCOUNT;
+    RETURN 'Quality data transformation completed. Rows processed: ' || SQLROWCOUNT;
 END;
 $$;
 
