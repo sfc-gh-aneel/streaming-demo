@@ -63,6 +63,10 @@ def execute_sql_file(connection, file_path):
         lines = sql_content.split('\n')
         
         for line in lines:
+            # Skip pure comment lines and empty lines when not in a procedure
+            if not in_procedure and (line.strip().startswith('--') or line.strip() == ''):
+                continue
+                
             current_statement += line + '\n'
             
             # Check if we're entering a stored procedure/function
@@ -82,8 +86,8 @@ def execute_sql_file(connection, file_path):
         if current_statement.strip():
             statements.append(current_statement.strip())
         
-        # Filter out empty statements and comments-only statements
-        statements = [stmt for stmt in statements if stmt.strip() and not stmt.strip().startswith('--')]
+        # Filter out empty statements
+        statements = [stmt for stmt in statements if stmt.strip()]
         
         cursor = connection.cursor()
         

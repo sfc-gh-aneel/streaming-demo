@@ -83,7 +83,7 @@ BEGIN
     )
     GROUP BY e.equipment_id, e.equipment_name, e.max_temperature, e.max_pressure, DATE_TRUNC('MINUTE', f.timestamp_utc);
     
-    RETURN 'Equipment performance aggregations completed. Rows processed: ' || $$ROWCOUNT;
+    RETURN 'Equipment performance aggregations completed. Rows processed: ' || SQLROWCOUNT;
 END;
 $$;
 
@@ -142,7 +142,7 @@ BEGIN
     )
     GROUP BY l.line_id, l.line_name, l.target_capacity_per_hour, DATE_TRUNC('HOUR', f.timestamp_utc), UTILITIES.GET_SHIFT_NAME(HOUR(f.timestamp_utc));
     
-    RETURN 'Production metrics aggregations completed. Rows processed: ' || $$ROWCOUNT;
+    RETURN 'Production metrics aggregations completed. Rows processed: ' || SQLROWCOUNT;
 END;
 $$;
 
@@ -227,7 +227,7 @@ BEGIN
     )
     GROUP BY p.product_id, p.product_name, e.production_line_id, DATE_TRUNC('HOUR', q.timestamp_utc);
     
-    RETURN 'Quality summary aggregations completed. Rows processed: ' || $$ROWCOUNT;
+    RETURN 'Quality summary aggregations completed. Rows processed: ' || SQLROWCOUNT;
 END;
 $$;
 
@@ -299,7 +299,7 @@ BEGIN
     DELETE FROM AGGREGATION.AGG_REALTIME_DASHBOARD 
     WHERE snapshot_timestamp < DATEADD('DAY', -1, CURRENT_TIMESTAMP());
     
-    RETURN 'Real-time dashboard updated. Rows processed: ' || $$ROWCOUNT;
+    RETURN 'Real-time dashboard updated. Rows processed: ' || SQLROWCOUNT;
 END;
 $$;
 
