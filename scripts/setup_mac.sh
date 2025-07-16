@@ -185,7 +185,16 @@ verify_installation() {
             local version=""
             case $tool in
                 "docker") version=$(docker --version 2>/dev/null | head -1) ;;
-                "java") version=$(java -version 2>&1 | head -1) ;;
+                "java") 
+                    # Ensure JAVA_HOME is set for verification
+                    if [[ $(detect_architecture) == "apple_silicon" ]]; then
+                        export JAVA_HOME="/opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home"
+                    else
+                        export JAVA_HOME="/usr/local/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home"
+                    fi
+                    export PATH="$JAVA_HOME/bin:$PATH"
+                    version=$(java -version 2>&1 | head -1) 
+                    ;;
                 "mvn") version=$(mvn --version 2>/dev/null | head -1) ;;
                 "python3") version=$(python3 --version 2>/dev/null) ;;
             esac
@@ -351,11 +360,22 @@ main() {
     # Run the main setup script
     print_section "Running Main Setup Script"
     
+    # Ensure setup script is executable
+    chmod +x "$SCRIPT_DIR/setup_demo.sh"
+    
     # Activate virtual environment if it exists
     if [[ -d "$PROJECT_ROOT/venv" ]]; then
         print_message $YELLOW "🔌 Activating virtual environment..."
         source "$PROJECT_ROOT/venv/bin/activate"
     fi
+    
+    # Ensure Java environment is set for the main script
+    if [[ $(detect_architecture) == "apple_silicon" ]]; then
+        export JAVA_HOME="/opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home"
+    else
+        export JAVA_HOME="/usr/local/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home"
+    fi
+    export PATH="$JAVA_HOME/bin:$PATH"
     
     "$SCRIPT_DIR/setup_demo.sh" \
         --account "$SNOWFLAKE_ACCOUNT" \
