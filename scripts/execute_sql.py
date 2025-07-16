@@ -104,6 +104,7 @@ def execute_sql_file(connection, file_path):
         
         cursor.close()
         logger.info(f"Successfully executed {len(statements)} statements from {file_path}")
+        return True
         
     except Exception as e:
         logger.error(f"Error executing SQL file {file_path}: {str(e)}")

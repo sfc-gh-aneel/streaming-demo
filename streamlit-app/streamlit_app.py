@@ -387,7 +387,7 @@ def render_equipment():
             ORDER BY time_window_start DESC
             """
             
-            perf_data = session.sql(query).to_pandas()
+            perf_data = execute_snowflake_query(session, query)
             
             if not perf_data.empty:
                 # Display current metrics
@@ -517,7 +517,7 @@ def render_production():
         ORDER BY time_window_start DESC
         """
         
-        production_data = session.sql(query).to_pandas()
+        production_data = execute_snowflake_query(session, query)
         
         if production_data.empty:
             st.info("No production data available for the selected timeframe.")
