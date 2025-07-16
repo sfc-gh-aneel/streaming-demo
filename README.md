@@ -6,13 +6,19 @@ A comprehensive end-to-end demonstration of real-time data streaming in Snowflak
 
 ### Mac Users (Easiest)
 ```bash
-./scripts/setup_mac.sh -a YOUR_ACCOUNT -u YOUR_USER -p YOUR_PASSWORD
+./scripts/setup_mac.sh -a YOUR_ACCOUNT -u YOUR_USER -p YOUR_PASSWORD -r SYSADMIN
 ```
 **Everything installed automatically!** 🍎
 
+### MFA Users
+```bash
+./scripts/setup_with_mfa.sh -a YOUR_ACCOUNT -u YOUR_USER -p YOUR_PASSWORD
+```
+**Enhanced MFA support!** 🔐
+
 ### All Other Platforms
 ```bash
-./scripts/setup_demo.sh -a YOUR_ACCOUNT -u YOUR_USER -p YOUR_PASSWORD
+./scripts/setup_demo.sh -a YOUR_ACCOUNT -u YOUR_USER -p YOUR_PASSWORD -r SYSADMIN
 ```
 **Prerequisites required first** 📋
 
@@ -85,7 +91,13 @@ For detailed architectural views, see the comprehensive diagrams in [`docs/diagr
 **One-command setup** - automatically installs all prerequisites:
 
 ```bash
-./scripts/setup_mac.sh -a YOUR_ACCOUNT -u YOUR_USER -p YOUR_PASSWORD
+./scripts/setup_mac.sh -a YOUR_ACCOUNT -u YOUR_USER -p YOUR_PASSWORD -r SYSADMIN
+```
+
+**For MFA-enabled accounts:**
+
+```bash
+./scripts/setup_with_mfa.sh -a YOUR_ACCOUNT -u YOUR_USER -p YOUR_PASSWORD
 ```
 
 ✨ **Features:**
@@ -96,10 +108,11 @@ For detailed architectural views, see the comprehensive diagrams in [`docs/diagr
 - 🐍 **Python 3.11** with required packages (PEP 668 compliant)
 - 🔧 **Maven** build tool installation
 - 📦 **Virtual environment** auto-creation if needed
+- 🔐 **MFA support** with extended timeouts and session keep-alive
 
 📖 **[Complete Mac Setup Guide](./docs/MAC_SETUP.md)** with troubleshooting
 
-> **Note**: The script automatically handles modern Python environment restrictions by using `--user` installation or creating a virtual environment at `./venv/`
+> **Important**: Use `SYSADMIN` or `ACCOUNTADMIN` role for database creation privileges. The `PUBLIC` role lacks sufficient permissions.
 
 ### Generic Setup
 

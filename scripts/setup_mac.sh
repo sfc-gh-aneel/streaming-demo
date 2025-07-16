@@ -294,7 +294,7 @@ Options:
   -a, --account ACCOUNT         Snowflake account identifier
   -u, --user USER              Snowflake username  
   -p, --password PASSWORD      Snowflake password
-  -r, --role ROLE              Snowflake role (default: PUBLIC)
+  -r, --role ROLE              Snowflake role (default: SYSADMIN)
   --skip-prereq-install        Skip automatic installation of prerequisites
   -h, --help                   Show this help message
 
@@ -354,7 +354,8 @@ main() {
         echo ""
     fi
     if [[ -z "$SNOWFLAKE_ROLE" ]]; then
-        SNOWFLAKE_ROLE="PUBLIC"
+        SNOWFLAKE_ROLE="SYSADMIN"
+        print_message $YELLOW "⚠️  No role specified, using SYSADMIN (required for database creation)"
     fi
     
     # Run the main setup script

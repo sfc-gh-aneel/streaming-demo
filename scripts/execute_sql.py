@@ -126,7 +126,9 @@ def main():
             'account': args.account,
             'user': args.user,
             'password': args.password,
-            'role': args.role
+            'role': args.role,
+            'client_session_keep_alive': True,
+            'login_timeout': 120  # Extended timeout for MFA
         }
         
         if args.warehouse:
@@ -149,7 +151,8 @@ def main():
         print("✓ SQL execution completed successfully")
         
     except snowflake.connector.errors.DatabaseError as e:
-        if "404 Not Found" in str(e):
+        error_str = str(e)
+        if "404 Not Found" in error_str:
             logger.error("❌ Snowflake Connection Failed - 404 Not Found")
             logger.error("This usually means:")
             logger.error("  1. Account identifier is incorrect")
@@ -164,9 +167,24 @@ def main():
             logger.error("    - Organization: ORGNAME-ACCOUNTNAME (e.g., 'myorg-myaccount')")
             logger.error("  • Verify in Snowflake console: Admin > Accounts")
             logger.error("  • Check if account is active and not suspended")
-        elif "Authentication" in str(e) or "Login" in str(e):
+        elif "Authentication" in error_str or "Login" in error_str:
             logger.error("❌ Authentication Failed")
             logger.error("Please check your username and password")
+        elif "Insufficient privileges" in error_str or "SQL access control error" in error_str:
+            logger.error("❌ Insufficient Privileges")
+            logger.error("Your user account doesn't have permission to create databases.")
+            logger.error("")
+            logger.error("💡 Solutions:")
+            logger.error("  1. Use a role with higher privileges:")
+            logger.error("     --role SYSADMIN")
+            logger.error("     --role ACCOUNTADMIN")
+            logger.error("")
+            logger.error("  2. Ask your admin to grant privileges:")
+            logger.error("     GRANT CREATE DATABASE ON ACCOUNT TO ROLE your_role;")
+            logger.error("     GRANT CREATE WAREHOUSE ON ACCOUNT TO ROLE your_role;")
+            logger.error("")
+            logger.error("  3. Try the setup with SYSADMIN role:")
+            logger.error("     ./scripts/setup_mac.sh -a ACCOUNT -u USER -p PASS -r SYSADMIN")
         else:
             logger.error(f"❌ Database connection error: {str(e)}")
         sys.exit(1)
