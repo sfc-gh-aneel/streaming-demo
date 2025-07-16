@@ -286,6 +286,10 @@ streaming-demo/
 │           ├── ManufacturingStreamingApp.java
 │           ├── config/StreamingConfig.java
 │           └── service/               # Service classes
+├── streamlit-app/                     # Streamlit in Snowflake dashboard
+│   ├── streamlit_app.py               # Main Streamlit application
+│   ├── requirements.txt               # Streamlit dependencies
+│   └── README.md                      # Deployment instructions
 └── scripts/                          # Automation scripts
     ├── setup_demo.sh                 # Main setup script
     └── execute_sql.py                # SQL execution helper
@@ -387,6 +391,31 @@ ORDER BY scheduled_time DESC;
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📱 Interactive Streamlit Dashboard
+
+The demo includes a comprehensive **Streamlit in Snowflake** app for interactive data visualization and analysis.
+
+### Features
+
+- **🏠 Real-time Dashboard**: Facility overview with KPIs and alerts
+- **⚙️ Equipment Performance**: Individual equipment monitoring and trends
+- **📊 Production Analytics**: Line performance and efficiency analysis  
+- **🔍 Quality Control**: Defect analysis and quality metrics
+- **🔧 Predictive Maintenance**: Health scores and failure predictions
+
+### Quick Deploy
+
+1. **Prerequisites**: Ensure the manufacturing demo is running and generating data
+2. **Deploy App**: 
+   ```bash
+   cd streamlit-app
+   # Copy streamlit_app.py content to Snowsight Streamlit editor
+   # Or use Snowflake CLI to deploy
+   ```
+3. **Access**: Navigate to Streamlit Apps in Snowsight
+
+📖 **Full deployment instructions**: [`streamlit-app/README.md`](./streamlit-app/README.md)
 
 ## 🙋 Support
 
