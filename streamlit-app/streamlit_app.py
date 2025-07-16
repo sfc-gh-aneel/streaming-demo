@@ -787,7 +787,7 @@ def render_quality():
         WHERE is_active = TRUE
         ORDER BY product_id
         """
-        products = session.sql(product_query).to_pandas()
+        products = execute_snowflake_query(session, product_query)
         
         if products.empty:
             st.warning("No product data available.")
@@ -859,7 +859,7 @@ def render_quality():
         ORDER BY time_window_start DESC
         """
         
-        quality_data = session.sql(quality_query).to_pandas()
+        quality_data = execute_snowflake_query(session, quality_query)
         
         if quality_data.empty:
             st.info("No quality data available for the selected filters.")
@@ -1220,7 +1220,7 @@ def render_maintenance():
         WHERE is_active = TRUE
         ORDER BY equipment_id
         """
-        equipment_list = session.sql(equipment_query).to_pandas()
+        equipment_list = execute_snowflake_query(session, equipment_query)
         
         if equipment_list.empty:
             st.warning("No equipment data available.")
@@ -1281,7 +1281,7 @@ def render_maintenance():
         ORDER BY maintenance_priority DESC, overall_health_score ASC
         """
         
-        maintenance_data = session.sql(maintenance_query).to_pandas()
+        maintenance_data = execute_snowflake_query(session, maintenance_query)
         
         if maintenance_data.empty:
             st.info("No maintenance data available for the selected filters.")
