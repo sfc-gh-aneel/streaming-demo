@@ -12,10 +12,10 @@ snowflake:
 
 # Data Generation Settings
 generation:
-  # Generate data every N seconds - INCREASED FREQUENCY
-  interval_seconds: 2
-  # Number of records per batch - INCREASED VOLUME
-  batch_size: 200
+  # Generate data every N seconds - HIGH FREQUENCY FOR THOUSANDS PER SECOND
+  interval_seconds: 1
+  # Number of records per batch - HIGH VOLUME FOR MASSIVE THROUGHPUT
+  batch_size: 3000
   # Enable continuous generation
   continuous: true
   # Random seed for reproducible data
