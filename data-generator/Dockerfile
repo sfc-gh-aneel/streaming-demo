@@ -7,8 +7,8 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Java 11 for Snowflake SDK
-RUN apt-get update && apt-get install -y openjdk-11-jre-headless
+# Install Java 17 for Snowflake SDK (Java 11 not available on this Debian version)
+RUN apt-get update && apt-get install -y openjdk-17-jre-headless
 
 # Set working directory
 WORKDIR /app
@@ -25,7 +25,7 @@ COPY config/ ./config/
 
 # Set environment variables
 ENV PYTHONPATH=/app
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-arm64
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
 
 # Create directory for data files
 RUN mkdir -p /app/data
